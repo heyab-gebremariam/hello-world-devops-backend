@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  backend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hello-world-backend-prod
+    ports:
+      - "8092:8092"
+    env_file:
+      - .env # Load variables from .env file
+    environment:
+      DATABASE_URL: ${DATABASE_URL_PROD} # Read from .env file
+      GIN_MODE: "debug"
+      PORT: "8092"
+    restart: unless-stopped # Optional: Restart policy
+    networks: # Optional: Define network if coordinating with other services
+      - prod-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+  db:
+    image: postgres:13-alpine 
+    container_name: hello-world-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - prod-network
+    volumes:
+      - prod-db-data:/var/lib/postgresql/data
+    healthcheck: # Optional but good practice
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+networks: # Optional
+  prod-network:
+    driver: bridge
+
+volumes:
+  prod-db-data:
+    driver: local
