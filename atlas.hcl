@@ -1,3 +1,9 @@
+# Declare the input variable expected from the command line
+variable "db_url" {
+  type        = string
+  description = "The URL of the development database"
+  // default = "postgres://user:pass@host:port/db?sslmode=disable"
+}
 
 data "external_schema" "gorm" {
   program = [
@@ -9,7 +15,7 @@ data "external_schema" "gorm" {
 
 env "gorm" {
   src = data.external_schema.gorm.url
-  dev = "postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE&search_path=public"
+  dev = var.db_url
 
   migration {
     dir = "file://migrations"
@@ -21,5 +27,3 @@ env "gorm" {
     }
   }
 }
-
-
