@@ -226,6 +226,7 @@ func main() {
 
 	// --- CORS Middleware ---
 	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+	log.Println(frontendOrigin)
 	if frontendOrigin == "" && ginMode == gin.DebugMode {
 		frontendOrigin = "http://localhost:5173"
 		log.Printf("Warning: FRONTEND_ORIGIN not set, allowing default %s for CORS", frontendOrigin)
